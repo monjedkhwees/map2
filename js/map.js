@@ -44,31 +44,39 @@ function initMap() {
   infowindow = new google.maps.InfoWindow({
     content: "<p>My Info Window Content</p>"
   });
-  // test marker with different position
-  var marker = new google.maps.Marker({
-    position: {
-      lat: 33.890002,
-      lng: 35.499708
-    },
-    map: map,
-    title: 'Patriarcat'
-  });
-  marker.addListener('click', function() {
-    infowindow.open(map, marker);
-  });
+  
+  var viewModel = function() {
+    var self = this;
+    self.locations = ko.observableArray(locations);
+    
+    for (var i = 0; i < self.locations().length; i++) {
+    self.locations()[i].marker = createMarker(new google.maps.LatLng(self.locations()[i].lat, self.locations()[i].lng));
+    // Call the 'createClickEvent' function, and pass the current location as a parameter
+    createClickEvent(self.locations()[i]);
+}
 
-for (var i = 0; i < AppViewModel.allLocations().length; i++) {
-var marker = new google.maps.Marker({
-  map: map,
-  draggable: true,
-  animation: google.maps.Animation.DROP,
-  position: {
-    lat: 33.893197,
-      lng: 35.501933
-  }
-});
+function createClickEvent(location) {
+    location.marker.addListener('click', function() {
+        /* Start off by logging the location object to the console
+         * This will let you view the location object, and see if this `createClickEvent` function is working properly so far
+         */
+        console.log(location);
 
-marker.addListener('click', toggleBounce);
+        /*
+         * Inside this 'createClickEvent' function, the marker object can be accessed using 'location.marker'.
+         * You can use the marker variable to complete the necessary click functionality
+         */
+
+        /* TODO: use the 'setContent()' method to update the content of the 'infowindow' object */
+
+        /* TODO: open the 'infowindow' object */
+        infowindow.open(map, marker);
+
+        /* TODO: bounce the map marker icon */
+        marker.addListener('click', toggleBounce);
+
+    });
+}
 
 function toggleBounce() {
   if (marker.getAnimation() !== null) {
@@ -77,16 +85,6 @@ function toggleBounce() {
     marker.setAnimation(google.maps.Animation.BOUNCE);
   }
 }
-}
-  var viewModel = function() {
-    var self = this;
-    self.locations = ko.observableArray(locations);
-    
-    for (var i = 0; i < self.locations().length; i++) { // <- use the ko observableArray instead of the loactions array
-      self.locations()[i].marker = createMarker(new google.maps.LatLng(  //<- use the ko observableArray instead of the loactions array
-        self.locations()[i].lat, self.locations()[i].lng));  //<- use the ko observableArray instead of the loactions array
-
-    } 
     self.value = ko.observable('');
   self.search = ko.computed(function() {
       return ko.utils.arrayFilter(self.locations(), function(place) {
@@ -118,37 +116,3 @@ function googleError(){
 
 
 
-/*
-
-infowindow = new google.maps.InfoWindow({
-        content: '<div class="info">loading...</div>'
-    });
-
-markerClick = function() {
-        ViewModel.showInfo(this);
-
-for (var i = 0; i < ViewModel.allLocations().length; i++) {
-        marker[i] = new google.maps.Marker({
-            map: map,
-            animation: google.maps.Animation.DROP,
-            position: {
-                lat: locations[i].lon,
-                lng: locations[i].lat
-            }
-        });
-        google.maps.event.addListener(marker[i], 'click', markerClick);
-    }
-}
-
-function toggleBounce(marker) {
-    if (marker.getAnimation() !== null) {
-        marker.setAnimation(null);
-    } else {
-        marker.setAnimation(google.maps.Animation.BOUNCE);
-        window.setTimeout(function() {
-            marker.setAnimation(null);
-        }, 2000);
-    }
-}
-
-*/
